@@ -1,0 +1,141 @@
+# =============================================================
+# StudyFlow AI — Central Prompt Configuration (EXAMPLE)
+# =============================================================
+# Copy this file to prompts.yaml and customize:
+#   cp prompts.example.yaml prompts.yaml
+#
+# All prompts in one place. Edit here to change AI behavior.
+# Code loads from prompts.yaml at startup.
+# =============================================================
+
+# ── Teaching Style Personas ──────────────────────────────────
+# Each style defines HOW the AI talks to the student.
+# The pipeline picks one based on intent, emotion, and mastery.
+role_templates:
+  professor: >-
+    [Your professor persona prompt here. Example: You are a world-class university professor. Teach with depth and academic rigor.]
+  casual: >-
+    [Your casual tutor persona prompt here. Example: You are a friendly tutor. Explain things simply like talking over coffee.]
+  socratic: >-
+    [Your Socratic teacher persona prompt here. Example: Guide through questions, never give direct answers.]
+  coach: >-
+    [Your exam coach persona prompt here. Example: Test knowledge, give feedback, push for mastery.]
+  pair_programmer: >-
+    [Your pair programmer persona prompt here. Example: Debug together step by step with a junior developer.]
+  peer: >-
+    [Your peer tutor persona prompt here. Example: Discuss concepts as equals, explore edge cases together.]
+
+# ── Response Length Formats ──────────────────────────────────
+# Controls HOW MUCH the AI writes based on the situation.
+format_rules:
+  ultra_short: >-
+    [Your ultra-short format rules. Example: 1-2 conversational sentences only. No markdown. Plain spoken English.]
+  short: >-
+    [Your short format rules. Example: Under 3 sentences. Minimal formatting. Direct and concise.]
+  medium: >-
+    [Your medium format rules. Example: 1-2 paragraphs. Light formatting allowed.]
+  balanced: >-
+    [Your balanced format rules. Example: Clear structure with headers. 2-4 paragraphs.]
+  long: >-
+    [Your long format rules. Example: Detailed explanation with examples. Headers, code blocks.]
+  comprehensive: |-
+    [Your comprehensive format rules. Example: Full textbook-style response with headers, tables, code blocks, diagrams, practice questions.]
+
+# ── Critical Rules (always included) ────────────────────────
+# These are appended to EVERY system prompt.
+critical_rules:
+  anti_reasoning_leak: >-
+    [Your anti-reasoning-leak rule. Example: NEVER show your internal thinking or reasoning process. Just respond directly.]
+  date_time: >-
+    Today's date and time is {now}.
+  student_context: >-
+    Student name: {name}. Level: {difficulty}. Topics mastered: {topics_str}.
+  weak_areas: >-
+    ⚠️ Weak areas: {topics}. Be extra patient and clear on these topics.
+  high_mastery: >-
+    [Your high-mastery instruction. Example: The student has strong mastery. Use advanced terminology.]
+  live_web_citation: >-
+    [Your live web citation rule. Example: Cite search results by index [1], [2]. Do NOT make up citations.]
+    {search_raw}
+
+# ── Conditional Content Instructions ────────────────────────
+# Added dynamically based on user context.
+content_instructions:
+  use_analogy: >-
+    [Your analogy instruction. Example: Use a real-world analogy to explain the concept.]
+  use_diagram: >-
+    [Your diagram instruction. Example: Include a visual diagram using json-diagram code fence. Max 12 nodes.]
+  use_table: >-
+    [Your table instruction. Example: Use a Markdown comparison table. IMPORTANT: Fill in ALL cells with detailed content. Do NOT leave any cells empty.]
+  use_code_example: >-
+    [Your code example instruction. Example: Include a working code example with inline comments.]
+  use_quiz: >-
+    [Your quiz instruction. Example: End with 1-2 practice questions.]
+  use_motivation: >-
+    [Your motivation instruction. Example: Start with encouragement. Be patient and supportive.]
+  ask_followup: >-
+    [Your follow-up instruction. Example: End with a thoughtful follow-up question.]
+
+# ── User Message Templates ──────────────────────────────────
+# How the user message is wrapped when context is available.
+user_message:
+  with_documents: |-
+    REFERENCE MATERIAL:
+    {doc_text}
+
+    QUESTION: {message}
+  without_documents: "{message}"
+
+# ── Content-Specific Prompts (Legacy Service) ───────────────
+# Standalone prompts for podcast, quiz, flashcards, YouTube.
+content_prompts:
+  podcast: |-
+    [Your podcast generation prompt. Example:
+    Write a dialogue between Professor Guy (teacher) and Student Ava (learner).
+    - 16+ exchanges, 12-30 words per line
+    - Guy teaches with analogies; Ava reacts with emotion (wonder, confusion, relief)
+    - Teach one concept at a time, bridge naturally between them
+    - NO markdown, NO bullets, NO emojis
+    - Return ONLY a JSON array: [{"speaker":"Guy","text":"..."},{"speaker":"Ava","text":"..."}]
+    Placeholders: {content} (study material), {concept_descriptions} (extracted concepts)]
+  quiz: >-
+    [Your quiz generation prompt. Example: Generate {count} multiple-choice questions with 4 options each. JSON format with explanations.]
+  flashcards: >-
+    [Your flashcard generation prompt. Example: Generate {count} flashcards with front/back. JSON array format.]
+  youtube_summary: >-
+    [Your YouTube summary prompt. Example: Convert transcript into structured study notes with headings, bullet points, and summary.]
+
+# ── Legacy System Prompt (fallback) ─────────────────────────
+# Used as a fallback when pipeline is unavailable.
+legacy:
+  system_prompt: >-
+    [Your base system prompt. Example: You are StudyFlow Tutor, an expert professor and exam coach.]
+  voice_mode: >-
+    [Your voice mode instruction. Example: 1-2 SHORT conversational sentences only. No markdown. Speak like a phone call.]
+  full_textbook_mode: >-
+    [Your full textbook mode rules. Example: Teach from beginner to exam readiness. Use diagrams, tables, code blocks, practice questions.]
+
+# ── Post-Processing: Reasoning Detection Patterns ───────────
+# Used by ui_formatter.py to strip leaked chain-of-thought.
+reasoning_detection:
+  starters:
+    - "[Add phrase prefixes that indicate the AI leaked chain-of-thought thinking.
+      Example: 'Okay, the user', 'Let me think', 'The user said', 'Let's analyze',
+      'Based on the instructions', 'Hmm, the user', 'I need to', 'First, let me'
+      The ui_formatter.py strips any response starting with these patterns.]"
+
+# ── Self-Reflection ──────────────────────────────────────────
+# Used by the SelfReflector module to critique AI responses.
+reflection:
+  critique_prompt: >-
+    [Your self-reflection/critique prompt. Example: You are a quality reviewer. Check for
+    factual accuracy, clarity, completeness, tone, and relevance. If good, pass it through.
+    If issues found, provide an improved version after ---IMPROVED RESPONSE--- marker.]
+
+# ── Memory Layout Diagrams ──────────────────────────────────
+# Instructions for generating Python memory layout visualizations.
+memory_layout:
+  instructions: >-
+    [Your memory layout diagram instructions. When explaining Python memory internals,
+    include a JSON code block with language-memory-layout showing pointer-based
+    structures (list, tuple) vs contiguous structures (numpy arrays).]
